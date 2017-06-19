@@ -14,8 +14,6 @@ public static class MeshGenerator {
 		int meshSimplificationIncrement = (levelOfDetail == 0)? 1 : levelOfDetail * 2;
 		int verticesPerLine = (width - 1) / meshSimplificationIncrement + 1;
 
-		Debug.Log ("mesh simplification: " + meshSimplificationIncrement);
-		Debug.Log ("vertices per line: " + verticesPerLine);
 		MeshData meshData = new MeshData (verticesPerLine, verticesPerLine);  // same b/c we have a square mesh
 		int vertexIndex = 0;
 
@@ -48,7 +46,6 @@ public class MeshData {
 		vertices = new Vector3[meshWidth * meshHeight];
 		uvs = new Vector2[vertices.Length];
 		triangles = new int[(meshWidth - 1) * (meshHeight - 1) * 6];
-		Debug.Log ("triangle count: " + triangles.Length);
 	}
 
 	public void AddTriangle(int a, int b, int c) {
