@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class EndlessTerrain : MonoBehaviour {
 
+	const float scale = 5f;
 	const float viewerMoveThresholdForChunkUpdate = 25f;
 	const float squareViewerMoveThresholdForChunkUpdate = viewerMoveThresholdForChunkUpdate * viewerMoveThresholdForChunkUpdate;
 
@@ -21,7 +22,7 @@ public class EndlessTerrain : MonoBehaviour {
 	int chunksVisibleInViewDistance;
 
 	Dictionary<Vector2, TerrainChunk> terrainChunkDictionary = new Dictionary<Vector2, TerrainChunk>();
-	List<TerrainChunk> terrainChunksVisibleLastUpdate = new List<TerrainChunk>();
+	static List<TerrainChunk> terrainChunksVisibleLastUpdate = new List<TerrainChunk>();
 
 	void Start() {
 		mapGenerator = FindObjectOfType<MapGenerator> ();
@@ -33,7 +34,7 @@ public class EndlessTerrain : MonoBehaviour {
 	}
 
 	void Update() {
-		viewerPosition = new Vector2 (viewer.position.x, viewer.position.z);
+		viewerPosition = new Vector2 (viewer.position.x, viewer.position.z) / scale;
 		if ((viewerPositionOld - viewerPosition).sqrMagnitude >= squareViewerMoveThresholdForChunkUpdate) {
 			viewerPositionOld = viewerPosition;
 			UpdateVisibleChunks ();
@@ -57,9 +58,6 @@ public class EndlessTerrain : MonoBehaviour {
 				if (terrainChunkDictionary.ContainsKey (viewedChunkCoord)) {
 					TerrainChunk chunk = terrainChunkDictionary [viewedChunkCoord];
 					chunk.UpdateTerrainChunk ();
-					if (chunk.IsVisible ()) {
-						terrainChunksVisibleLastUpdate.Add (chunk);
-					}
 				} else {
 					TerrainChunk chunk = new TerrainChunk (viewedChunkCoord, chunkSize, detailLevels, transform, mapMaterial);
 					terrainChunkDictionary.Add (viewedChunkCoord, chunk);
@@ -98,7 +96,8 @@ public class EndlessTerrain : MonoBehaviour {
 			meshFilter = meshObject.AddComponent<MeshFilter>();
 
 			meshObject.transform.parent = parent;
-			meshObject.transform.position = pos3;
+			meshObject.transform.position = pos3 * scale;
+			meshObject.transform.localScale = Vector3.one * scale;
 		
 			SetVisible(false);
 
@@ -143,6 +142,8 @@ public class EndlessTerrain : MonoBehaviour {
 							lodMesh.RequestMesh (mapData);
 						}
 					}
+
+					terrainChunksVisibleLastUpdate.Add (this);
 				}
 
 				SetVisible (visible);
