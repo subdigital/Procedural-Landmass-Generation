@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class EndlessTerrain : MonoBehaviour {
 
-	const float scale = 5f;
+	const float scale = 2f;
 	const float viewerMoveThresholdForChunkUpdate = 25f;
 	const float squareViewerMoveThresholdForChunkUpdate = viewerMoveThresholdForChunkUpdate * viewerMoveThresholdForChunkUpdate;
 
@@ -74,9 +74,12 @@ public class EndlessTerrain : MonoBehaviour {
 
 		MeshRenderer meshRenderer;
 		MeshFilter meshFilter;
+		MeshCollider meshCollider;
 
 		LODInfo[] detailLevels;
 		LODMesh[] levelOfDetailMeshes;
+
+		LODMesh collisionLODMesh;
 
 		MapData mapData;
 		bool mapDataReceived;
@@ -94,6 +97,7 @@ public class EndlessTerrain : MonoBehaviour {
 			meshRenderer = meshObject.AddComponent<MeshRenderer>();
 			meshRenderer.material = material;
 			meshFilter = meshObject.AddComponent<MeshFilter>();
+			meshCollider = meshObject.AddComponent<MeshCollider>();
 
 			meshObject.transform.parent = parent;
 			meshObject.transform.position = pos3 * scale;
@@ -104,6 +108,9 @@ public class EndlessTerrain : MonoBehaviour {
 			levelOfDetailMeshes = new LODMesh[detailLevels.Length];
 			for (int i = 0; i < detailLevels.Length; i++) {
 				levelOfDetailMeshes[i] = new LODMesh(detailLevels[i].lod, UpdateTerrainChunk);
+				if (detailLevels[i].useForCollisionMesh) {
+					collisionLODMesh = levelOfDetailMeshes[i];
+				}
 			}
 
 			mapGenerator.RequestMapData(pos, OnMapDataReceived);
@@ -144,6 +151,16 @@ public class EndlessTerrain : MonoBehaviour {
 					}
 
 					terrainChunksVisibleLastUpdate.Add (this);
+
+					if (lodIndex == 0) {
+						if (collisionLODMesh.hasMesh) {
+							meshCollider.sharedMesh = collisionLODMesh.mesh;
+						} else if (!collisionLODMesh.hasRequestedMesh) {
+							collisionLODMesh.RequestMesh (mapData);
+						}
+					} else if (meshCollider.sharedMesh != null) {
+						meshCollider.sharedMesh = null;
+					}
 				}
 
 				SetVisible (visible);
@@ -188,6 +205,6 @@ public class EndlessTerrain : MonoBehaviour {
 	public struct LODInfo {
 		public int lod;
 		public float visibleDistanceThreshold;
-
+		public bool useForCollisionMesh;
 	}
 }

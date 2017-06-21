@@ -168,7 +168,7 @@ public class MeshData {
 		mesh.triangles = triangles;
 		mesh.uv = uvs;
 		mesh.normals = CalculateNormals ();
-		// mesh.RecalculateNormals ();
+
 		return mesh;
 	}
 }
