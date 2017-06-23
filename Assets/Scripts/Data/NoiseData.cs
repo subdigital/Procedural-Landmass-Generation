@@ -18,7 +18,6 @@ public class NoiseData : UpdatableData {
 
 	protected override void OnValidate() {
 		
-		Debug.Log("Onvalidate in noiseData");
 		if  (lacunarity < 1) {
 			lacunarity = 1;
 		}
